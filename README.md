@@ -1,3 +1,6 @@
+# Note for fork
+I know it seems like I just replaced the OG author with my own. Promise that its not. Making a security tool with this fork.
+
 # SMB
 A Go package for communicating over SMB. Currently only minimal funcationality exists for client-side functions.
 
@@ -9,7 +12,7 @@ package main
 import (
 	"log"
 
-	"github.com/stacktitan/smb/smb"
+	"github.com/ilightthings/smb/smb"
 )
 
 func main() {
