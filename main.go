@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	host := "192.168.1.159"
+	host := "192.168.1.161"
 	options := smb.Options{
 		Host:        host,
 		Port:        445,

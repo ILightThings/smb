@@ -1,6 +1,13 @@
 # Note for fork
 I know it seems like I just replaced the OG author with my own. Promise that its not. Making a security tool with this fork.
 
+Using the challenge issues by the server duing the NTLMSSP process, we are able to grab the NETBIOS and FQDN of the target machine with out having to authenticate.
+
+[Link to microsoft whitepaper about NTLMSSP](https://winprotocoldoc.blob.core.windows.net/productionwindowsarchives/MS-NLMP/%5bMS-NLMP%5d.pdf)
+
+
+
+# OG README
 # SMB
 A Go package for communicating over SMB. Currently only minimal funcationality exists for client-side functions.
 
