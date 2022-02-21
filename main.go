@@ -8,14 +8,14 @@ import (
 
 func main() {
 
-	host := "172.16.248.192"
+	host := "192.168.1.161"
 	options := smb.Options{
 		Host:        host,
 		Port:        445,
-		User:        "alice",
-		Domain:      "corp",
+		User:        "administrator",
+		Domain:      "light",
 		Workstation: "",
-		Password:    "Password123!",
+		Password:    "123Admin123!!",
 	}
 	debug := false
 	session, err := smb.NewSession(options, debug)

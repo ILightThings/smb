@@ -29,6 +29,7 @@ type Session struct {
 	dialect           uint16
 	options           Options
 	trees             map[string]uint32
+	blob              *gss.NegTokenResp
 }
 
 type Options struct {
@@ -194,64 +195,8 @@ func (s *Session) NegotiateProtocol() error {
 		s.Debug("", err)
 		return err
 	}
+	s.blob = resp
 
-	if ssres.Header.Status != StatusMoreProcessingRequired {
-		status, _ := StatusMap[negRes.Header.Status]
-		return errors.New(fmt.Sprintf("NT Status Error: %s\n", status))
-	}
-	s.sessionID = ssres.Header.SessionID
-
-	s.Debug("Sending SessionSetup2 request", nil)
-	ss2req, err := s.NewSessionSetup2Req()
-	if err != nil {
-		s.Debug("", err)
-		return err
-	}
-
-	var auth ntlmssp.Authenticate
-	if s.options.Hash != "" {
-		// Hash present, use it for auth
-		s.Debug("Performing hash-based authentication", nil)
-		auth = ntlmssp.NewAuthenticateHash(s.options.Domain, s.options.User, s.options.Workstation, s.options.Hash, challenge)
-	} else {
-		// No hash, use password
-		s.Debug("Performing password-based authentication", nil)
-		auth = ntlmssp.NewAuthenticatePass(s.options.Domain, s.options.User, s.options.Workstation, s.options.Password, challenge)
-	}
-
-	responseToken, err := encoder.Marshal(auth)
-	if err != nil {
-		s.Debug("", err)
-		return err
-	}
-	resp2 := ss2req.SecurityBlob
-	resp2.ResponseToken = responseToken
-	ss2req.SecurityBlob = resp2
-	ss2req.Header.Credits = 127
-	buf, err = encoder.Marshal(ss2req)
-	if err != nil {
-		s.Debug("", err)
-		return err
-	}
-
-	buf, err = s.send(ss2req)
-	if err != nil {
-		s.Debug("", err)
-		return err
-	}
-	s.Debug("Unmarshalling SessionSetup2 response", nil)
-	var authResp Header
-	if err := encoder.Unmarshal(buf, &authResp); err != nil {
-		s.Debug("Raw:\n"+hex.Dump(buf), err)
-		return err
-	}
-	if authResp.Status != StatusOk {
-		status, _ := StatusMap[authResp.Status]
-		return errors.New(fmt.Sprintf("NT Status Error: %s\n", status))
-	}
-	s.IsAuthenticated = true
-
-	s.Debug("Completed NegotiateProtocol and SessionSetup", nil)
 	return nil
 }
 
