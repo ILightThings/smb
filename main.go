@@ -1,14 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ilightthings/smb/smb"
+	"github.com/ilightthings/smb/smb/enum"
 )
 
 func main() {
 
-	host := "192.168.1.161"
+	host := "192.168.1.159"
 	options := smb.Options{
 		Host:        host,
 		Port:        445,
@@ -39,4 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("[!]", err)
 	}
+
+	workstation := enum.BuildWorkstation(session)
+	fmt.Println(len(workstation.Reserve))
 }

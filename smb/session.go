@@ -29,7 +29,7 @@ type Session struct {
 	dialect           uint16
 	options           Options
 	trees             map[string]uint32
-	blob              *gss.NegTokenResp
+	Blob              *gss.NegTokenResp
 }
 
 type Options struct {
@@ -195,7 +195,7 @@ func (s *Session) NegotiateProtocol() error {
 		s.Debug("", err)
 		return err
 	}
-	s.blob = resp
+	s.Blob = resp
 
 	return nil
 }
