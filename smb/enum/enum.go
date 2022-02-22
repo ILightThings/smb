@@ -40,7 +40,6 @@ type workstaion struct {
 	Version                []byte // 8 Bytes 32 Windows OS would be here
 	Payload                []byte // Unknow Number of bytes
 	PayloadUint16          []uint16
-	PayloadParsed          []string //Attributes: NetBIOS Domain Name, NetBIOS Computer Name, DNS Domain Name, DNS Computer Name, Timestamp, endof list
 	NBCompName             AVPairs
 	NBDomainName           AVPairs
 	DNSCompName            AVPairs
@@ -81,7 +80,16 @@ func BuildWorkstation(s *smb.Session) workstaion {
 	if err != nil {
 		log.Fatalln("Could not find NBDomainName")
 	}
-	workstationInfo.DNSDomainName, err = extractAV(workstationInfo.PayloadUint16, uint16(NTLMSSP_AV_DNS_HOSTNAME))
+	workstationInfo.NBCompName, err = extractAV(workstationInfo.PayloadUint16, uint16(NTLMSSP_AV_HOSTNAME))
+	if err != nil {
+		log.Fatalln("Could not find NBHostname")
+	}
+
+	workstationInfo.DNSDomainName, err = extractAV(workstationInfo.PayloadUint16, uint16(NTLMSSP_AV_DNS_DOMAINNAME))
+	if err != nil {
+		log.Fatalln("Could not find DNSDomainName")
+	}
+	workstationInfo.DNSCompName, err = extractAV(workstationInfo.PayloadUint16, uint16(NTLMSSP_AV_DNS_HOSTNAME))
 	if err != nil {
 		log.Fatalln("Could not find DNSHostName")
 	}
@@ -96,14 +104,14 @@ func BuildWorkstation(s *smb.Session) workstaion {
 
 }
 
-func uinteightToString(b []byte) string { //Convert []uint8 to []uint16 to []byte to string. I know I am stupid. I have no idea how to fix this otherwise.
+/* func uinteightToString(b []byte) string { //Convert []uint8 to []uint16 to []byte to string. I know I am stupid. I have no idea how to fix this otherwise.
 	var niceArray []byte
 	for i := 0; i <= len(b); i = i + 2 {
 		val := binary.LittleEndian.Uint16(b[i : i+2])
 		niceArray = append(niceArray, byte(val))
 	}
 	return string(niceArray)
-}
+} */
 
 func uint16ToString(i []uint16) string {
 	var byteArray []byte
@@ -139,7 +147,7 @@ func extractAV(s []uint16, value uint16) (AVPairs, error) { // return stating po
 		}
 	}
 	if AVPairObj.AttributePos == outOfBound {
-		return AVPairObj, errors.New("Could Not Find Attribute Location")
+		return AVPairObj, errors.New("could not find attribute location")
 	}
 
 	//AttributeLen = int(s[AttributePos])

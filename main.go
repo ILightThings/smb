@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	host := "192.168.1.161"
+	host := "172.16.0.10"
 	options := smb.Options{
 		Host:        host,
 		Port:        445,
@@ -30,12 +30,6 @@ func main() {
 		log.Println("[-] Signing is required")
 	} else {
 		log.Println("[+] Signing is NOT required")
-	}
-
-	if session.IsAuthenticated {
-		log.Println("[+] Login successful")
-	} else {
-		log.Println("[-] Login failed")
 	}
 
 	if err != nil {
