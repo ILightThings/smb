@@ -20,7 +20,6 @@ import (
 
 type Session struct {
 	IsSigningRequired bool
-	IsAuthenticated   bool
 	debug             bool
 	securityMode      uint16
 	messageID         uint64
@@ -65,7 +64,6 @@ func NewSession(opt Options, debug bool) (s *Session, err error) {
 
 	s = &Session{
 		IsSigningRequired: false,
-		IsAuthenticated:   false,
 		debug:             debug,
 		securityMode:      0,
 		messageID:         0,
@@ -171,7 +169,7 @@ func (s *Session) NegotiateProtocol() error {
 		s.Debug("", err)
 		return err
 	}
-	buf, err = encoder.Marshal(ssreq)
+	_, err = encoder.Marshal(ssreq)
 	if err != nil {
 		s.Debug("", err)
 		return err

@@ -8,17 +8,15 @@ import (
 	"github.com/ilightthings/smb/smb/enum"
 )
 
+// TODO Make this somehow cleaner
 func main() {
 
-	host := "172.16.0.10"
+	host := "192.168.1.161"
 	options := smb.Options{
-		Host:        host,
-		Port:        445,
-		User:        "administrator",
-		Domain:      "light",
-		Workstation: "",
-		Password:    "123Admin123!!",
+		Host: host,
+		Port: 445,
 	}
+
 	debug := false
 	session, err := smb.NewSession(options, debug)
 	if err != nil {
@@ -36,6 +34,6 @@ func main() {
 		log.Fatalln("[!]", err)
 	}
 
-	workstation := enum.BuildWorkstation(session)
+	workstation := enum.EnumerateWorkstation(session)
 	fmt.Println(len(workstation.Reserve))
 }

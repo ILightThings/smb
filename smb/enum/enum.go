@@ -22,7 +22,7 @@ const (
 	NTLMSSP_AV_CHANNEL_BINDINGS = 0x0a
 )
 
-type workstaion struct {
+type Workstaion struct {
 	Signature              []byte // 8 Bytes 32
 	Messsagetype           []byte // 4 Bytes 16
 	TargetNameFields       []byte // 8 bytes 32
@@ -34,7 +34,7 @@ type workstaion struct {
 	ServerChallenge        []byte // 8 bytes 32
 	Reserve                []byte // 8 bytes 32
 	TargetInfoFields       []byte // 8 bytes 32
-	TargetInfoLength       int
+	TargetInfoLength       int    // Used to dictate the payload length
 	TargetInfoMaxlen       int
 	TargetInfoOffset       int
 	Version                []byte // 8 Bytes 32 Windows OS would be here
@@ -44,6 +44,7 @@ type workstaion struct {
 	NBDomainName           AVPairs
 	DNSCompName            AVPairs
 	DNSDomainName          AVPairs
+	SMBSigning             bool
 }
 
 type AVPairs struct {
@@ -55,12 +56,13 @@ type AVPairs struct {
 	ValueLen      int
 }
 
-func BuildWorkstation(s *smb.Session) workstaion {
+func EnumerateWorkstation(s *smb.Session) Workstaion { // Build Workstation Object
 	rawBuild := s.Blob.ResponseToken
-	var workstationInfo workstaion
+	var workstationInfo Workstaion
 	var err error
-	workstationInfo.Signature = rawBuild[0:8]
-	workstationInfo.Messsagetype = rawBuild[8:12]
+	workstationInfo.SMBSigning = s.IsSigningRequired
+	workstationInfo.Signature = rawBuild[0:8]     // An 8-byte character array that MUST contain the ASCII string ('N', 'T', 'L', 'M','S', 'S', 'P', '\0') 4e 54 4c 4d 53 53 50 00
+	workstationInfo.Messsagetype = rawBuild[8:12] // Must be 02 00 00 00 (Little Endian) = 0x02
 	workstationInfo.TargetNameFields = rawBuild[12:20]
 	workstationInfo.TargetNameFieldsLength = int(binary.LittleEndian.Uint16(workstationInfo.TargetNameFields[0:2]))
 	workstationInfo.TargetNameFieldsMaxLen = int(binary.LittleEndian.Uint16(workstationInfo.TargetNameFields[2:4]))
